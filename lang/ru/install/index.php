@@ -1,11 +1,11 @@
 <?php
-$MESS ['JUBIKS_GEOLOCATION_MODULE_NAME'] = 'Îïðåäåëåíèå ãåîëîêàöèè ïîëüçîâàòåëÿ';
-$MESS ['JUBIKS_GEOLOCATION_MODULE_DESCRIPTION'] = 'Ìîäóëü îïðåäåëåíèÿ ãåîëîêàöèè ïîëüçîâàòåëÿ ïî IP-àäðåñó';
-$MESS ['JUBIKS_GEOLOCATION_PARTNER_NAME'] = '';
-$MESS ['JUBIKS_GEOLOCATION_PARTNER_URI'] = '';
-$MESS ['JUBIKS_GEOLOCATION_INSTALL_MODULE'] = "Óñòàíîâêà ìîäóëÿ";
-$MESS ['JUBIKS_GEOLOCATION_UNINSTALL_MODULE'] = "Óäàëåíèå ìîäóëÿ";
-$MESS ['MOD_INST_OK'] = "Ìîäóëü óñïåøíî óñòàíîâëåí";
-$MESS ['MOD_UNINST_OK'] = "Ìîäóëü óñïåøíî óäàëåí èç ñèñòåìû";
-$MESS ['MOD_GO_SETTINGS'] = "Ïåðåéòè ê íàñòðîéêàì ìîäóëÿ";
-$MESS ['MOD_UNINST_SAVE_DATA'] = "Ñîõðàíèòü íàñòðîéêè ìîäóëÿ";
+$MESS['JUBIKS_GEOLOCATION_MODULE_NAME'] = 'ÐžÐ¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð¸Ðµ Ð³ÐµÐ¾Ð»Ð¾ÐºÐ°Ñ†Ð¸Ð¸ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ';
+$MESS['JUBIKS_GEOLOCATION_MODULE_DESCRIPTION'] = 'ÐœÐ¾Ð´ÑƒÐ»ÑŒ Ð¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÐµÐ½Ð¸Ñ Ð³ÐµÐ¾Ð»Ð¾ÐºÐ°Ñ†Ð¸Ð¸ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»Ñ Ð¿Ð¾ IP-Ð°Ð´Ñ€ÐµÑÑƒ';
+$MESS['JUBIKS_GEOLOCATION_PARTNER_NAME'] = '';
+$MESS['JUBIKS_GEOLOCATION_PARTNER_URI'] = '';
+$MESS['JUBIKS_GEOLOCATION_INSTALL_MODULE'] = "Ð£ÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° Ð¼Ð¾Ð´ÑƒÐ»Ñ";
+$MESS['JUBIKS_GEOLOCATION_UNINSTALL_MODULE'] = "Ð£Ð´Ð°Ð»ÐµÐ½Ð¸Ðµ Ð¼Ð¾Ð´ÑƒÐ»Ñ";
+$MESS['MOD_INST_OK'] = "ÐœÐ¾Ð´ÑƒÐ»ÑŒ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½";
+$MESS['MOD_UNINST_OK'] = "ÐœÐ¾Ð´ÑƒÐ»ÑŒ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾ ÑƒÐ´Ð°Ð»ÐµÐ½ Ð¸Ð· ÑÐ¸ÑÑ‚ÐµÐ¼Ñ‹";
+$MESS['MOD_GO_SETTINGS'] = "ÐŸÐµÑ€ÐµÐ¹Ñ‚Ð¸ Ðº Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ°Ð¼ Ð¼Ð¾Ð´ÑƒÐ»Ñ";
+$MESS['MOD_UNINST_SAVE_DATA'] = "Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ Ð¼Ð¾Ð´ÑƒÐ»Ñ";

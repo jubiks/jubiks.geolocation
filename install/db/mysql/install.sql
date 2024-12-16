@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS jubiks_geolocation_ip_address (
   PRIMARY KEY (ID)
 )
 ENGINE = INNODB,
-CHARACTER SET cp1251,
-COLLATE cp1251_general_ci,
+CHARACTER SET utf8mb3,
+COLLATE utf8mb3_unicode_ci,
 ROW_FORMAT = DYNAMIC;
 
 CREATE TABLE IF NOT EXISTS jubiks_geolocation_country (
@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS jubiks_geolocation_country (
   PRIMARY KEY (ID)
 )
 ENGINE = INNODB,
-CHARACTER SET cp1251,
-COLLATE cp1251_general_ci,
+CHARACTER SET utf8mb3,
+COLLATE utf8mb3_unicode_ci,
 ROW_FORMAT = DYNAMIC;
 
 CREATE TABLE IF NOT EXISTS jubiks_geolocation_region (
@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS jubiks_geolocation_region (
   PRIMARY KEY (ID)
 )
 ENGINE = INNODB,
-CHARACTER SET cp1251,
-COLLATE cp1251_general_ci,
+CHARACTER SET utf8mb3,
+COLLATE utf8mb3_unicode_ci,
 ROW_FORMAT = DYNAMIC;
 
 CREATE TABLE IF NOT EXISTS jubiks_geolocation_city (
@@ -47,8 +47,8 @@ CREATE TABLE IF NOT EXISTS jubiks_geolocation_city (
   PRIMARY KEY (ID)
 )
 ENGINE = INNODB,
-CHARACTER SET cp1251,
-COLLATE cp1251_general_ci,
+CHARACTER SET utf8mb3,
+COLLATE utf8mb3_unicode_ci,
 ROW_FORMAT = DYNAMIC;
 
 

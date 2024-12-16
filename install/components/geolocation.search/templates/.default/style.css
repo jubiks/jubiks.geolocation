@@ -1,0 +1,25 @@
+.form-required:after {
+    content: '*';
+    padding: 0px 3px;
+    color: red;
+}
+
+.form-action {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+}
+
+@media (max-width: 540px) {
+    .btn-sm-block {
+        display: block;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .btn-md-block {
+        display: block;
+        width: 100%;
+    }
+}

@@ -1,5 +1,7 @@
 <?
-IncludeModuleLangFile(__FILE__);
+use Bitrix\Main\Localization\Loc;
+
+Loc::loadMessages(__FILE__);
 
 Class jubiks_geolocation extends CModule
 {
@@ -23,12 +25,11 @@ Class jubiks_geolocation extends CModule
             $this->MODULE_VERSION = $arModuleVersion["VERSION"];
             $this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
         }
-        
-        $this->PARTNER_NAME = GetMessage("JUBIKS_GEOLOCATION_PARTNER_NAME");
-		$this->PARTNER_URI = GetMessage("JUBIKS_GEOLOCATION_PARTNER_URI");
-        
-        $this->MODULE_NAME = GetMessage("JUBIKS_GEOLOCATION_MODULE_NAME");
-        $this->MODULE_DESCRIPTION = GetMessage("JUBIKS_GEOLOCATION_MODULE_DESCRIPTION");
+
+        $this->MODULE_NAME = Loc::getMessage("JUBIKS_GEOLOCATION_MODULE_NAME");
+        $this->MODULE_DESCRIPTION = Loc::getMessage("JUBIKS_GEOLOCATION_MODULE_DESCRIPTION");
+        $this->PARTNER_NAME = Loc::getMessage("JUBIKS_GEOLOCATION_PARTNER_NAME");
+		$this->PARTNER_URI = Loc::getMessage("JUBIKS_GEOLOCATION_PARTNER_URI");
     }
     
     function GetModInstPath(){

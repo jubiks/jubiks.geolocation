@@ -1,17 +1,23 @@
 <?php
+use Bitrix\Main\Mail\Event;
+
 if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/local/vendor/autoload.php')) {
     include_once $_SERVER['DOCUMENT_ROOT'] . '/local/vendor/autoload.php';
 } elseif (file_exists($_SERVER['DOCUMENT_ROOT'] . '/bitrix/vendor/autoload.php')) {
     include_once $_SERVER['DOCUMENT_ROOT'] . '/local/bitrix/autoload.php';
 }
 
-
 $module = 'jubiks.geolocation';
 
+// Загружаем классы модуля
 CModule::AddAutoloadClasses(
     $module,
     array()
 );
+
+if(!defined('GEOLOCATION_ERROR_LOG')) {
+    define('GEOLOCATION_ERROR_LOG', $_SERVER['DOCUMENT_ROOT'] . '/upload/geolocation_error.log');
+}
 
 class GeoLocationService
 {
@@ -27,7 +33,7 @@ class GeoLocationService
     public function __construct()
     {
         // Инициализация Dadata API Client, если доступен
-        if (class_exists('\Dadata\DadataClient')) {
+        if (class_exists('\Dadata\DadataClient') && empty($this->dadataApiKey)) {
             $this->dadataClient = new \Dadata\DadataClient($this->dadataApiKey, null);
         }
 
@@ -38,7 +44,9 @@ class GeoLocationService
         }
 
         // URL для IP Geolocation API
-        $this->ipGeolocationApi = "https://api.ipgeolocation.io/ipgeo?apiKey={$this->ipGeolocationApiKey}&lang=ru&ip=";
+        if(empty($this->ipGeolocationApiKey)) {
+            $this->ipGeolocationApi = "https://api.ipgeolocation.io/ipgeo?apiKey={$this->ipGeolocationApiKey}&lang=ru&ip=";
+        }
 
         // URL для IP-API
         $this->ipGeoApi = 'http://ip-api.com/json/{ip}?lang=ru&fields=status,message,country,countryCode,region,regionName,city,lat,lon,query';
@@ -72,17 +80,22 @@ class GeoLocationService
         }
 
         // Попробуем получить местоположение через IP-API
-        $location = $this->getLocationFromIpGeoApi($ip);
-        if ($location) {
-            $this->saveLocationToDatabase($ip, $location);
-            return $location;
+        if($this->ipGeoApi) {
+            $location = $this->getLocationFromIpGeoApi($ip);
+            if ($location) {
+                $this->saveLocationToDatabase($ip, $location);
+                return $location;
+            }
         }
 
+
         // Попробуем получить местоположение через IP Geolocation API
-        $location = $this->getLocationFromIpGeolocation($ip);
-        if ($location) {
-            $this->saveLocationToDatabase($ip, $location);
-            return $location;
+        if(!empty($this->ipGeolocationApiKey)) {
+            $location = $this->getLocationFromIpGeolocation($ip);
+            if ($location) {
+                $this->saveLocationToDatabase($ip, $location);
+                return $location;
+            }
         }
 
         // Если не удалось определить местоположение, вернуть null
@@ -92,7 +105,7 @@ class GeoLocationService
     // Метод для получения информации о местоположении из базы данных
     private function getLocationFromDatabase($ip)
     {
-        return \Kami\Geolocation\IpAddressTable::getByIp($ip)->fetch();
+        return \Jubiks\Geolocation\IpAddressTable::getByIp($ip)->fetch();
     }
 
     // Метод для получения информации о местоположении через Dadata API
@@ -114,7 +127,8 @@ class GeoLocationService
                 ];
             }
         } catch (Exception $e) {
-            // Логирование ошибки или обработка исключения
+            // Логирование ошибки / обработка исключения
+            $this->logError($e);
         }
         return null;
     }
@@ -138,7 +152,8 @@ class GeoLocationService
                 ];
             }
         } catch (Exception $e) {
-            // Логирование ошибки или обработка исключения
+            // Логирование ошибки / обработка исключения
+            $this->logError($e);
         }
         return null;
     }
@@ -164,7 +179,8 @@ class GeoLocationService
                 ];
             }
         } catch (Exception $e) {
-            // Логирование ошибки или обработка исключения
+            // Логирование ошибки / обработка исключения
+            $this->logError($e);
         }
         return null;
     }
@@ -190,7 +206,8 @@ class GeoLocationService
                 ];
             }
         } catch (Exception $e) {
-            // Логирование ошибки или обработка исключения
+            // Логирование ошибки / обработка исключения
+            $this->logError($e);
         }
         return null;
     }
@@ -198,6 +215,11 @@ class GeoLocationService
     // Метод для сохранения информации о местоположении в базу данных
     private function saveLocationToDatabase($ip, $location)
     {
+        $countryId = null;
+        $regionId = null;
+        $cityId = null;
+
+        // Сохраняем информацию о стране
         if (!empty($location['country_iso'])) {
             $dbCountry = \Jubiks\Geolocation\CountryTable::query()
                 ->setSelect(['ID'])
@@ -224,6 +246,7 @@ class GeoLocationService
             }
         }
 
+        // Сохраняем информацию о регионе
         if ($countryId && !empty($location['region'])) {
             $dbRegion = \Jubiks\Geolocation\RegionTable::query()
                 ->setSelect(['ID'])
@@ -251,6 +274,7 @@ class GeoLocationService
             }
         }
 
+        // Сохраняем информацию о городе
         if ($countryId && $regionId && !empty($location['city'])) {
             $dbCity = \Jubiks\Geolocation\CityTable::query()
                 ->setSelect(['ID'])
@@ -282,6 +306,7 @@ class GeoLocationService
             }
         }
 
+        // Сохраняем информацию об IP-адресе
         if ($countryId && $cityId && $ip) {
             $location = $this->getLocationFromDatabase($ip);
             if (!$location) {
@@ -312,26 +337,20 @@ class GeoLocationService
         }
     }
 
+    // Функция агента для обновления базы
     public static function baseUpdater()
     {
         $return = "\GeoLocationService::baseUpdater();";
-
         self::GeoSxBaseUpdater();
-
         return $return;
     }
 
+    // Функция обновления базы Sypex Geo
     public static function GeoSxBaseUpdater()
     {
-        // Обновление файла базы данных Sypex Geo
-        // Настройки
         $url = 'https://sypexgeo.net/files/SxGeoCity_utf8.zip';  // Путь к скачиваемому файлу
         $dat_file_dir = $_SERVER['DOCUMENT_ROOT'] . '/upload/SxGeo'; // Каталог в который сохранять dat-файл
         $last_updated_file = $_SERVER['DOCUMENT_ROOT'] . '/upload/SxGeo/SxGeo.dat'; // Файл в котором хранится дата последнего обновления
-        define('INFO', false); // Вывод сообщений о работе, true заменить на false после установки в cron
-        // Конец настроек
-
-        $t = microtime(1);
 
         if (!file_exists($dat_file_dir)) {
             @mkdir($dat_file_dir, BX_DIR_PERMISSIONS, true);
@@ -340,51 +359,88 @@ class GeoLocationService
         if (!file_exists($dat_file_dir)) return false;
 
         chdir($dat_file_dir);
-        $types = array(
+        $types = [
             'Country' => 'SxGeo.dat',
             'City' => 'SxGeoCity.dat',
             'Max' => 'SxGeoMax.dat',
-        );
+        ];
+
         // Скачиваем архив
         preg_match("/(Country|City|Max)/", pathinfo($url, PATHINFO_BASENAME), $m);
         $type = $m[1];
         $dat_file = $types[$type];
-        if (INFO) echo "Скачиваем архив с сервера\n";
 
         $fp = fopen($dat_file_dir . '/SxGeoTmp.zip', 'wb');
         $ch = curl_init($url);
-        curl_setopt_array($ch, array(
+        curl_setopt_array($ch, [
             CURLOPT_FILE => $fp,
-            CURLOPT_HTTPHEADER => file_exists($last_updated_file) ? array("If-Modified-Since: " . file_get_contents($last_updated_file)) : array(),
-        ));
-        if (!curl_exec($ch)) die ('Ошибка при скачивании архива');
+            CURLOPT_HTTPHEADER => file_exists($last_updated_file) ? ["If-Modified-Since: " . file_get_contents($last_updated_file)] : [],
+        ]);
+
+        if (!curl_exec($ch)) return false;
+
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         fclose($fp);
+
         if ($code == 304) {
             @unlink($dat_file_dir . '/SxGeoTmp.zip');
-            if (INFO) echo "Архив не обновился, с момента предыдущего скачивания\n";
             return true;
         }
 
-        if (INFO) echo "Архив с сервера скачан\n";
         // Распаковываем архив
         $fp = fopen('zip://' . $dat_file_dir . '/SxGeoTmp.zip#' . $dat_file, 'rb');
         $fw = fopen($dat_file, 'wb');
+
         if (!$fp) {
             return false;
         }
-        if (INFO) echo "Распаковываем архив\n";
+
         stream_copy_to_stream($fp, $fw);
         fclose($fp);
         fclose($fw);
+
         if (filesize($dat_file) == 0) return false;
+
         @unlink($dat_file_dir . '/SxGeoTmp.zip');
+
         if (!rename($dat_file_dir . DIRECTORY_SEPARATOR . $dat_file, $dat_file_dir . DIRECTORY_SEPARATOR . $dat_file)) return false;
+
         file_put_contents($last_updated_file, gmdate('D, d M Y H:i:s') . ' GMT');
-        if (INFO) echo "Перемещен файл в {$dat_file_dir}{$dat_file}\n";
+
         return true;
     }
+
+    private function logError(Exception $exception)
+    {
+        // Формируем сообщение с деталями исключения
+        $errorMessage = sprintf(
+            "[%s] Ошибка: %s в файле %s на строке %d\nТрассировка:\n%s\n\n",
+            date('Y-m-d H:i:s'),
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine(),
+            $exception->getTraceAsString()
+        );
+
+        // Записываем ошибку в лог-файл
+        if(defined('GEOLOCATION_ERROR_LOG') && GEOLOCATION_ERROR_LOG) {
+            file_put_contents(GEOLOCATION_ERROR_LOG, $errorMessage, FILE_APPEND);
+        }
+
+        // Отправляем email
+        if(defined('GEOLOCATION_ERROR_EMAIL') && GEOLOCATION_ERROR_EMAIL && check_email(GEOLOCATION_ERROR_EMAIL)) {
+            Event::sendImmediate([
+                "EVENT_NAME" => "ERROR_NOTIFICATION",
+                "LID" => "s1",
+                "C_FIELDS" => [
+                    "EMAIL_TO" => GEOLOCATION_ERROR_EMAIL,
+                    "ERROR_MESSAGE" => $errorMessage,
+                ],
+            ]);
+        }
+    }
+
 }
 
 
